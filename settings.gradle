@@ -1,0 +1,3 @@
+include ':opengl2'
+include ':app'
+rootProject.name = "OpenGL_Learn"

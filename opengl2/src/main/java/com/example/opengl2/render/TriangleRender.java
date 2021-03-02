@@ -1,4 +1,4 @@
-package com.example.opengl2;
+package com.example.opengl2.render;
 
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;

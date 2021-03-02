@@ -1,18 +1,21 @@
-package com.example.opengl2;
+package com.example.opengl2.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 
-public class MainActivity extends AppCompatActivity {
+import com.example.opengl2.R;
+import com.example.opengl2.render.TriangleRender;
+
+public class OpenGLBasicActivity extends AppCompatActivity {
 
     private GLSurfaceView glSurfaceView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_opengl_basic);
 
         initView();
     }

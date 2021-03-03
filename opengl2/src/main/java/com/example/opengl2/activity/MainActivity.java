@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
         data.put("OpenGL基础画图", OpenGLBasicActivity.class);
         data.put("Camera数据用OpenGL渲染（CameraX）", CameraXOpenGLActivity.class);
+        data.put("FBO学习（CameraX）", FBOLearnActivity.class);
 
         RecyclerView recyclerView = findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));

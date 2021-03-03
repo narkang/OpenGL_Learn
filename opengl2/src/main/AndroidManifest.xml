@@ -3,11 +3,7 @@
     package="com.example.opengl2">
 
     <uses-permission android:name="android.permission.CAMERA" />
-
-<!--    代码里面定义了这里就不用定义了-->
-<!--    <uses-feature-->
-<!--        android:glEsVersion="0x00020000"-->
-<!--        android:required="true" />-->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"
@@ -16,7 +12,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.OpenGL_Learn">
-        <activity android:name=".activity.CameraXOpenGLActivity"></activity>
+        <activity android:name=".activity.FBOLearnActivity" />
+        <activity android:name=".activity.CameraXOpenGLActivity" />
         <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,7 +21,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.OpenGLBasicActivity"></activity>
+        <activity android:name=".activity.OpenGLBasicActivity" />
     </application>
 
 </manifest>

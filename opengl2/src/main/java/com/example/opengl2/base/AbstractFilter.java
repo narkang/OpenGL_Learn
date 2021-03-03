@@ -1,9 +1,9 @@
-package com.example.opengl2.util;
+package com.example.opengl2.base;
 
 import android.content.Context;
 import android.opengl.GLES20;
 
-import com.example.opengl2.R;
+import com.example.opengl2.util.OpenGLUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -12,17 +12,16 @@ import java.nio.FloatBuffer;
 import static android.opengl.GLES20.GL_FLOAT;
 import static android.opengl.GLES20.GL_TEXTURE0;
 
-public class ScreenFilter {
+public abstract class AbstractFilter {
 
     //句柄  gpu中  vPosition
     private int vPosition;
     FloatBuffer textureBuffer; // 纹理坐标
     private int vCoord;
     private int vTexture;
-    private int vMatrix;
     private int mWidth;
     private int mHeight;
-    private float[] mtx;
+
     //gpu顶点缓冲区
     FloatBuffer vertexBuffer; //顶点坐标缓存区
     //顶点坐标
@@ -40,9 +39,9 @@ public class ScreenFilter {
             1.0f, 1.0f
     };
 
-    private int program;
+    protected int program;
 
-    public ScreenFilter(Context context) {
+    public AbstractFilter(Context context, int vertexSharderId, int fragSharderId) {
         //GPU中创建一个缓冲区，提供给CPU，然后数据通过这个放到缓冲区
         vertexBuffer = ByteBuffer.allocateDirect(4 * 4 * 2)
                 .order(ByteOrder.nativeOrder())  //重新整理下内存
@@ -56,8 +55,8 @@ public class ScreenFilter {
         textureBuffer.clear();
         textureBuffer.put(TEXTURE);
 
-        String vertexSharder = OpenGLUtils.readRawTextFile(context, R.raw.camera_vert);
-        String fragSharder = OpenGLUtils.readRawTextFile(context, R.raw.camera_frag2);
+        String vertexSharder = OpenGLUtils.readRawTextFile(context, vertexSharderId);
+        String fragSharder = OpenGLUtils.readRawTextFile(context, fragSharderId);
 
         //给gpu使用的
         program = OpenGLUtils.loadProgram(vertexSharder, fragSharder);
@@ -68,12 +67,6 @@ public class ScreenFilter {
         //采样点的坐标
         vTexture = GLES20.glGetUniformLocation(program, "vTexture");
 
-        //变换矩阵， 需要将原本的vCoord（01,11,00,10） 与矩阵相乘
-        vMatrix = GLES20.glGetUniformLocation(program, "vMatrix");
-    }
-
-    public void setTransformMatrix(float[] mtx) {
-        this.mtx = mtx;
     }
 
     public void setSize(int width, int height) {
@@ -82,7 +75,7 @@ public class ScreenFilter {
     }
 
     //摄像头数据，开始渲染
-    public void onDraw(int texture) {
+    public int onDraw(int texture) {
 //      View 的大小
         GLES20.glViewport(0, 0, mWidth, mHeight);
 //        使用程序
@@ -112,8 +105,20 @@ public class ScreenFilter {
 //      生成一个采样
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture);
         GLES20.glUniform1i(vTexture, GL_TEXTURE0);
-        GLES20.glUniformMatrix4fv(vMatrix, 1, false, mtx, 0);
-//      通知渲染
+
+        beforeDraw();
+
+//      通知渲染， 没有调用fbo，就渲染到屏幕中了
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+
+        return texture;
+    }
+
+    public void beforeDraw(){
+
+    }
+
+    public void release(){
+        GLES20.glDeleteProgram(program);
     }
 }

@@ -1,30 +1,36 @@
-package com.example.opengl2.render;
+package com.example.opengl2.fbo;
 
+import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.opengl.EGL14;
 import android.opengl.GLSurfaceView;
+import android.os.Environment;
 import android.util.Log;
 
 import androidx.camera.core.Preview;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.example.opengl2.util.CameraHelper;
-import com.example.opengl2.util.CameraFilter;
-import com.example.opengl2.view.CameraView;
+
+import java.io.File;
+import java.io.IOException;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOutputUpdateListener, SurfaceTexture.OnFrameAvailableListener {
+public class CameraFboRender implements GLSurfaceView.Renderer, Preview.OnPreviewOutputUpdateListener, SurfaceTexture.OnFrameAvailableListener {
 
     private static final String TAG = "CameraRender";
     private CameraHelper cameraHelper;
-    private CameraView cameraView;
+    private CameraFboView cameraView;
     private SurfaceTexture mCameraTexture;
-    private  int[] textures;
+    private int[] textures;
     float[] mtx = new float[16];
-    private CameraFilter screenFilter;
+    private CameraFboFilter screenFilter;
+    private RecordFilter recordFilter;
+    private MediaRecorder mRecorder;
 
-    public CameraRender(CameraView cameraView) {
+    public CameraFboRender(CameraFboView cameraView) {
         this.cameraView = cameraView;
         LifecycleOwner lifecycleOwner = (LifecycleOwner) cameraView.getContext();
         cameraHelper = new CameraHelper(lifecycleOwner, this);
@@ -39,12 +45,23 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
         //监听摄像头数据回调
         mCameraTexture.setOnFrameAvailableListener(this);
 
-        screenFilter = new CameraFilter(cameraView.getContext());
+        screenFilter = new CameraFboFilter(cameraView.getContext());
+
+        Context context = cameraView.getContext();
+        recordFilter = new RecordFilter(context);
+
+        String path = new File(Environment.getExternalStorageDirectory(),
+                "input.mp4").getAbsolutePath();
+
+        mRecorder = new MediaRecorder(context, path,
+                EGL14.eglGetCurrentContext(),
+                480, 640);
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
-        screenFilter.setSize(width,height);  //初始化完成
+        screenFilter.setSize(width, height);  //初始化完成
+        recordFilter.setSize(width, height);
     }
 
     @Override
@@ -56,7 +73,13 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
         mCameraTexture.getTransformMatrix(mtx);
         screenFilter.setTransformMatrix(mtx);
 //      开始绘制
-        screenFilter.onDraw(textures[0]);
+
+        //id  fbo所在图层
+        int id = screenFilter.onDraw(textures[0]);
+//      显示到屏幕
+        id = recordFilter.onDraw(id);
+//      id代表数据,传入当前录制的时间搓，主动拿数据
+        mRecorder.findFrame(id, mCameraTexture.getTimestamp());
     }
 
     @Override
@@ -69,5 +92,16 @@ public class CameraRender implements GLSurfaceView.Renderer, Preview.OnPreviewOu
     public void onUpdated(Preview.PreviewOutput output) {
 //      摄像头预览到的数据 在这里
         mCameraTexture = output.getSurfaceTexture();
+    }
+
+    public void startRecord(float speed) {
+        try {
+            mRecorder.start(speed);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public void stopRecord() {
+        mRecorder.stop();
     }
 }

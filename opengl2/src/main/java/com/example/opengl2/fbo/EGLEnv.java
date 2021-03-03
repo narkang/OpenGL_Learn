@@ -90,7 +90,7 @@ public class EGLEnv {
         screenFilter.onDraw(textureId);
 //      给帧缓冲   时间戳
         EGLExt.eglPresentationTimeANDROID(mEglDisplay,mEglSurface,timestamp);
-        //EGLSurface是双缓冲模式
+        //EGLSurface是双缓冲模式，交换缓冲区
         EGL14.eglSwapBuffers(mEglDisplay,mEglSurface);
     }
 

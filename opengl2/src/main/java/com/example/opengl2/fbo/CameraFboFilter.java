@@ -12,7 +12,8 @@ public class CameraFboFilter extends AbstractFboFilter {
     private float[] mtx;
 
     public CameraFboFilter(Context context) {
-        super(context, R.raw.base_vert, R.raw.base_frag);
+//        super(context, R.raw.base_vert, R.raw.base_frag);
+        super(context, R.raw.camera_vert, R.raw.camera_frag);
         //变换矩阵， 需要将原本的vCoord（01,11,00,10） 与矩阵相乘
         vMatrix = GLES20.glGetUniformLocation(program, "vMatrix");
     }

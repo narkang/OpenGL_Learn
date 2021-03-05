@@ -103,6 +103,12 @@ public class MediaRecorder {
     }
 
     private void codec(boolean endOfStream) {
+
+        if(endOfStream){
+            mMediaCodec.signalEndOfInputStream();
+            return;
+        }
+
 //      编码
         while (true) {
 

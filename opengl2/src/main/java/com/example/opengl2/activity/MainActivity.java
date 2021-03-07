@@ -15,8 +15,6 @@ import android.widget.TextView;
 
 import com.example.opengl2.R;
 
-import java.util.Map;
-
 public class MainActivity extends AppCompatActivity {
 
     private ArrayMap<String, Class<? extends Activity>> data = new ArrayMap<>();

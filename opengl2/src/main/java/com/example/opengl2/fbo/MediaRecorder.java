@@ -104,6 +104,7 @@ public class MediaRecorder {
 
     private void codec(boolean endOfStream) {
 
+        //endOfStream为true录制完成
         if(endOfStream){
             mMediaCodec.signalEndOfInputStream();
             return;

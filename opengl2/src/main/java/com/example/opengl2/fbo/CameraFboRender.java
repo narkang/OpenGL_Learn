@@ -28,7 +28,8 @@ public class CameraFboRender implements GLSurfaceView.Renderer, Preview.OnPrevie
     float[] mtx = new float[16];
     private CameraFboFilter screenFilter;
     private RecordFilter recordFilter;
-    private SoulFilter soulFilter;
+    private SplitFilter splitFilter;
+//    private SoulFilter soulFilter;
 
     private MediaRecorder mRecorder;
 
@@ -51,7 +52,7 @@ public class CameraFboRender implements GLSurfaceView.Renderer, Preview.OnPrevie
 
         Context context = cameraView.getContext();
         recordFilter = new RecordFilter(context);
-        soulFilter = new SoulFilter(context);
+        splitFilter = new SplitFilter(context);
 
         String path = new File(Environment.getExternalStorageDirectory(),
                 "input.mp4").getAbsolutePath();
@@ -65,12 +66,12 @@ public class CameraFboRender implements GLSurfaceView.Renderer, Preview.OnPrevie
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         screenFilter.setSize(width, height);  //初始化完成
         recordFilter.setSize(width, height);
-        soulFilter.setSize(width, height);
+        splitFilter.setSize(width, height);
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        Log.e(TAG, "线程: " + Thread.currentThread().getName());
+//        Log.e(TAG, "线程: " + Thread.currentThread().getName());
 //      更新摄像头的数据，给了gpu
         mCameraTexture.updateTexImage();
 //      不是数据，给纹理坐标转换的
@@ -81,7 +82,7 @@ public class CameraFboRender implements GLSurfaceView.Renderer, Preview.OnPrevie
         //id  fbo所在图层
         int id = screenFilter.onDraw(textures[0]);
         //制作特效
-        id = soulFilter.onDraw(id);
+        id = splitFilter.onDraw(id);
 //      显示到屏幕
         id = recordFilter.onDraw(id);
 //      id代表数据,传入当前录制的时间搓，主动拿数据
